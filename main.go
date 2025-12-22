@@ -49,10 +49,10 @@ func main() {
 
 	// //
 
-	if err := router.Run("localhost:8080"); err != nil {
+	if err := router.Run("0.0.0.0:8080"); err != nil {
 		panic(fmt.Sprintf("ERROR : %v", err.Error()))
 	} else {
-		fmt.Println("Server running at : http://localhost:8080/api/v1")
+		fmt.Println("Server running at : http://0.0.0.0:8080/api/v1")
 	}
 
 }
