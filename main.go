@@ -10,10 +10,12 @@ import (
 	"github.com/jagoanbunda/jagoanbunda-backend/internal/service"
 	"github.com/jagoanbunda/jagoanbunda-backend/pkg/database"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/time/rate"
 	"gorm.io/gorm"
 )
 
 var logger *logrus.Logger
+var limitter *rate.Limiter
 var DB *gorm.DB
 
 func init() {
@@ -21,6 +23,8 @@ func init() {
 	logger.SetFormatter(&logrus.JSONFormatter{
 		PrettyPrint: true,
 	})
+	limitter = rate.NewLimiter(1, 4)
+
 	DB = database.InitDB()
 }
 
@@ -32,6 +36,7 @@ func main() {
 	router := gin.Default()
 	router.Use(middleware.CustomLogger(logger))
 	router.Use(gin.Recovery())
+	router.Use(middleware.RateLimitter(limitter))
 
 	// v1
 	v1Group := router.Group("/api/v1")
@@ -41,6 +46,8 @@ func main() {
 	authGroup.POST("/register", authHandler.Register)
 	authGroup.POST("/login", authHandler.Login)
 	authGroup.POST("/refresh", authHandler.RefreshToken)
+
+	// //
 
 	if err := router.Run("localhost:8080"); err != nil {
 		panic(fmt.Sprintf("ERROR : %v", err.Error()))
