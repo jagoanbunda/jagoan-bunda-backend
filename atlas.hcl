@@ -12,6 +12,7 @@ data "external_schema" "gorm" {
 env "gorm" {
   src = data.external_schema.gorm.url
   dev = "docker://postgres/18/dev"
+  url = "postgres://root@localhost:5432/jagoanbunda?&sslmode=disable"
   migration {
     dir = "file://migrations"
   }
