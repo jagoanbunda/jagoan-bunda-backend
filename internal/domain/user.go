@@ -1,3 +1,4 @@
+// Package domain is used to store models / entity that are used for ORM and migration, represents table and its content, and also hook to GORM functions
 package domain
 
 import (

@@ -1,3 +1,4 @@
+// Package service is used to serve the Service in Service-Repository pattern, where bussiness logic applied with using the repository
 package service
 
 import (

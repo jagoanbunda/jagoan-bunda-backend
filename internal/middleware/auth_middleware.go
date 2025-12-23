@@ -1,3 +1,4 @@
+// Package middleware is used to serve the middleware for gin to use
 package middleware
 
 import (

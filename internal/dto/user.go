@@ -1,3 +1,4 @@
+// Package dto are used to serialize data to object for transfer purposes
 package dto
 
 import (

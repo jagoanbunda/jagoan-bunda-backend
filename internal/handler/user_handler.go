@@ -1,3 +1,4 @@
+// Package handler are used for gin to handle request, utilizes the service package
 package handler
 
 import (

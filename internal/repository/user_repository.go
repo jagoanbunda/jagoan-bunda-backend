@@ -1,3 +1,4 @@
+// Package repository is used to serve Repository in Service-Repository pattern, talk to db directly
 package repository
 
 import (
