@@ -21,7 +21,7 @@ type RefreshTokenClaims struct {
 	UserID uuid.UUID `json:"user_id"`
 }
 
-func GenerateAccessToken(user_id uuid.UUID, email string, role domain.UserRole) (string, error) {
+func GenerateAccessToken(userID uuid.UUID, email string, role domain.UserRole) (string, error) {
 	expirationTime := time.Now().Add(15 * time.Minute)
 
 	claims := &AccessTokenClaims{
@@ -29,7 +29,7 @@ func GenerateAccessToken(user_id uuid.UUID, email string, role domain.UserRole) 
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			Issuer:    "Jagoan Bunda Backend",
 		},
-		UserID: user_id,
+		UserID: userID,
 		Email:  email,
 		Role:   role,
 	}
@@ -43,7 +43,7 @@ func GenerateAccessToken(user_id uuid.UUID, email string, role domain.UserRole) 
 	}
 }
 
-func GenerateRefreshToken(user_id uuid.UUID) (string, error) {
+func GenerateRefreshToken(userID uuid.UUID) (string, error) {
 
 	expirationTime := time.Now().Add(7 * 24 * time.Hour)
 
@@ -52,7 +52,7 @@ func GenerateRefreshToken(user_id uuid.UUID) (string, error) {
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			Issuer:    "Jagoan Bunda Backend",
 		},
-		UserID: user_id,
+		UserID: userID,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
