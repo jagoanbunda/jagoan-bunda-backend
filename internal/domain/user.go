@@ -18,13 +18,14 @@ const (
 type User struct {
 	ID uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"uuid"`
 
-	Name         string   `gorm:"type:varchar(255);not null" json:"name"`
-	Email        string   `gorm:"type:varchar(255);not null;uniqueIndex" json:"email"`
-	Phone        *string  `gorm:"type:varchar(20);unique" json:"phone"`
-	PasswordHash string   `gorm:"type:varchar(255);not null" json:"-"`
-	Role         UserRole `gorm:"type:varchar(20);default:'nakes';not null" json:"role"`
-	IsVerified   bool     `gorm:"default:false" json:"is_verified"`
-	Address      *string  `gorm:"type:text" json:"address"`
+	Name           string   `gorm:"type:varchar(255);not null" json:"name"`
+	ProfilePicture *string  `gorm:"type:varchar(500)" json:"profile_picture"`
+	Email          string   `gorm:"type:varchar(255);not null;uniqueIndex" json:"email"`
+	Phone          *string  `gorm:"type:varchar(20);unique" json:"phone"`
+	PasswordHash   string   `gorm:"type:varchar(255);not null" json:"-"`
+	Role           UserRole `gorm:"type:varchar(20);default:'nakes';not null" json:"role"`
+	IsVerified     bool     `gorm:"default:false" json:"is_verified"`
+	Address        *string  `gorm:"type:text" json:"address"`
 
 	// nakes
 	NIK *string `gorm:"type:varchar(255)" json:"nik"`
