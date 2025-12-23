@@ -81,7 +81,7 @@ func (s *authService) Login(ctx context.Context, request *dto.LoginRequest) (*dt
 func (s *authService) Register(ctx context.Context, request *dto.RegisterRequest) (*dto.AuthResponse, error) {
 	user, err := s.userRepository.FindByEmail(ctx, request.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, fmt.Errorf("Error on finding email : %v", err.Error())
+		return nil, fmt.Errorf("error on finding email : %v", err.Error())
 	}
 	if user != nil {
 		return nil, errors.New("email sudah dipakai")
@@ -102,7 +102,7 @@ func (s *authService) Register(ctx context.Context, request *dto.RegisterRequest
 	}
 	err = s.userRepository.Create(ctx, newUser)
 	if err != nil {
-		return nil, fmt.Errorf("User gagal dibuat : %v", err.Error())
+		return nil, fmt.Errorf("user gagal dibuat : %v", err.Error())
 	}
 
 	accessToken, err := utils.GenerateAccessToken(newUser.ID, newUser.Email, newUser.Role)
