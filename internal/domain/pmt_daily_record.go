@@ -21,3 +21,4 @@ type PMTDailyRecord struct {
 
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }
+
