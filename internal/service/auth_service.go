@@ -81,14 +81,14 @@ func (s *authService) Login(ctx context.Context, request *dto.LoginRequest) (*dt
 func (s *authService) Register(ctx context.Context, request *dto.RegisterRequest) (*dto.AuthResponse, error) {
 	user, err := s.userRepository.FindByEmail(ctx, request.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errors.New(fmt.Sprintf("Error on finding email : %v", err.Error()))
+		return nil, fmt.Errorf("Error on finding email : %v", err.Error())
 	}
 	if user != nil {
 		return nil, errors.New("email sudah dipakai")
 	}
 	hashedPassword, err := utils.HashPassword(request.Password)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("failed to hash password : %v", err.Error()))
+		return nil, fmt.Errorf("failed to hash password : %v", err.Error())
 	}
 	newUser := &domain.User{
 		Name:         request.Name,
@@ -102,7 +102,7 @@ func (s *authService) Register(ctx context.Context, request *dto.RegisterRequest
 	}
 	err = s.userRepository.Create(ctx, newUser)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("User gagal dibuat : %v", err.Error()))
+		return nil, fmt.Errorf("User gagal dibuat : %v", err.Error())
 	}
 
 	accessToken, err := utils.GenerateAccessToken(newUser.ID, newUser.Email, newUser.Role)
@@ -119,6 +119,8 @@ func (s *authService) Register(ctx context.Context, request *dto.RegisterRequest
 		RefreshToken: utils.StringToPtr(refreshToken),
 	}, nil
 }
+
+
 
 func (s *authService) NewAuthService(userRepository repository.UserRepository) AuthService {
 	return &authService{userRepository: userRepository}
