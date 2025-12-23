@@ -7,3 +7,4 @@
 # Ignore uploaded files but keep folder structure
 uploads/**/*
 !uploads/**/.gitkeep
+.vscode/settings.json
