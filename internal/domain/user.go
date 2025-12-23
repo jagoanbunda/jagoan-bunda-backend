@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -43,4 +44,20 @@ type User struct {
 
 func (User) TableName() string {
 	return "users"
+}
+
+// AfterFind adalah hook GORM yang dieksekusi setelah query SELECT berhasil.
+// Gunakan fungsi ini untuk memanipulasi data struct sebelum digunakan oleh aplikasi.
+func (u *User) AfterFind(tx *gorm.DB) (err error) {
+	if u.ProfilePicture != nil {
+		// Contoh logika: Menambahkan base URL ke nama file gambar
+		// Dalam implementasi nyata, sebaiknya ambil base URL dari konfigurasi aplikasi
+		baseURL := os.Getenv("BASE_URL")
+		if baseURL == ""{
+			baseURL = "http://0.0.0.0:8080"
+		}
+		modifiedPicture := baseURL + *u.ProfilePicture
+		u.ProfilePicture = &modifiedPicture
+	}
+	return
 }
