@@ -45,7 +45,7 @@ func (a *AuthHandler) Login(c *gin.Context) {
 
 	authResponse, err := a.AuthService.Login(c.Request.Context(), &req)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
