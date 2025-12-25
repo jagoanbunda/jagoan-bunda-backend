@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -29,7 +30,7 @@ func CustomLogger(logger *logrus.Logger) gin.HandlerFunc {
 			"method":     c.Request.Method,
 			"path":       c.Request.URL.Path,
 			"ip":         c.ClientIP(),
-			"latency":    latency,
+			"latency":    fmt.Sprintf("%v ms", latency.Milliseconds()),
 			"user_id":    userID,
 			"user_agent": c.Request.UserAgent(),
 		})
