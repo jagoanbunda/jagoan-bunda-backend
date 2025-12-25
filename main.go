@@ -37,14 +37,17 @@ func main() {
 
 	// repos
 	userRepository := repository.NewUserRepository(DB)
+	childRepository := repository.NewChildRepository(DB)
 
 	// services
 	authService := service.NewAuthService(userRepository)
 	userService := service.NewUserService(userRepository)
+	childService := service.NewChildService(childRepository)
 
 	// handlers
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userService)
+	childHandler := handler.NewChildHandler(childService)
 
 	router := gin.Default()
 	router.Use(middleware.CustomLogger(logger))
@@ -67,6 +70,9 @@ func main() {
 	userGroup := v1Group.Group("/user").Use(middleware.AuthenticateAccessToken)
 	userGroup.GET("/me", userHandler.Me)
 	userGroup.PUT("/profile", userHandler.UpdateProfile)
+
+	childGroup := v1Group.Group("/child").Use(middleware.AuthenticateAccessToken)
+	childGroup.GET("get/:childID", childHandler.Get)
 
 	if err := router.Run("0.0.0.0:8080"); err != nil {
 		panic(fmt.Sprintf("ERROR : %v", err.Error()))
