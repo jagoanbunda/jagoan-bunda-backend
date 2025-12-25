@@ -16,7 +16,7 @@ const (
 
 type Child struct {
 	ID       uuid.UUID  `gorm:"type:uuid;primaryKey"`
-	ParentID *uuid.UUID `gorm:"type:uuid" json:"parent_id"`
+	ParentID uuid.UUID `gorm:"type:uuid" json:"parent_id"`
 	Parent   *User      `gorm:"foreignKey:ParentID" json:"parent"`
 
 	Name        string    `gorm:"type:varchar(255);not null" json:"name"`
