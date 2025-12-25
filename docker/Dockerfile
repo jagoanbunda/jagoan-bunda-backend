@@ -10,14 +10,16 @@ WORKDIR /app
 # Copy go mod dan sum files
 COPY go.mod go.sum ./
 
-# Download dependencies
-RUN go mod download
+# Download dependencies (cached jika go.mod/go.sum tidak berubah)
+RUN go mod download && go mod verify
 
 # Copy source code
 COPY . .
 
-# Build aplikasi
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /app/main .
+# Build aplikasi dengan cache mount untuk Go build cache
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /app/main .
 
 # Final stage - menggunakan distroless untuk image yang lebih kecil dan aman
 FROM alpine:latest
