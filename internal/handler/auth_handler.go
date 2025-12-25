@@ -8,6 +8,7 @@ import (
 	"github.com/jagoanbunda/jagoanbunda-backend/internal/service"
 )
 
+
 type AuthHandler struct {
 	AuthService service.AuthService
 }
