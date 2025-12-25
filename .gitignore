@@ -2,9 +2,9 @@
 .github/copilot-instructions.md
 .env
 /documentation/BACKEND_ARCHITECTURE_PLANNING.md
-.agent/*
+# .agent/*
 
 # Ignore uploaded files but keep folder structure
 uploads/**/*
 !uploads/**/.gitkeep
-.vscode/settings.json
+.vscode/*
