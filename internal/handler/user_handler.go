@@ -11,7 +11,7 @@ import (
 )
 
 type UserHandler interface {
-	Me(c *gin.Context)
+	Get(c *gin.Context)
 	UpdateProfile(c *gin.Context)
 }
 
@@ -19,7 +19,7 @@ type userHandler struct {
 	userService service.UserService
 }
 
-func (u *userHandler) Me(c *gin.Context) {
+func (u *userHandler) Get(c *gin.Context) {
 	uuid, exist := c.Get("userInfo")
 	if !exist {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "bad token request"})
@@ -30,7 +30,7 @@ func (u *userHandler) Me(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "bad claims"})
 		return
 	}
-	userResponse, err := u.userService.Me(c.Request.Context(), data.UserID.String())
+	userResponse, err := u.userService.Get(c.Request.Context(), data.UserID.String())
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -15,7 +15,7 @@ import (
 )
 
 type UserService interface {
-	Me(ctx context.Context, uuid string) (*dto.UserResponse, error)
+	Get(ctx context.Context, uuid string) (*dto.UserResponse, error)
 	UpdateProfile(ctx context.Context, userID string, req *dto.UpdateUserRequest, profilePicture *multipart.FileHeader) (*dto.UserResponse, error)
 }
 
@@ -23,7 +23,7 @@ type userService struct {
 	repository repository.UserRepository
 }
 
-func (u *userService) Me(ctx context.Context, uuid string) (*dto.UserResponse, error) {
+func (u *userService) Get(ctx context.Context, uuid string) (*dto.UserResponse, error) {
 	user, err := u.repository.FindByID(ctx, uuid)
 	if err != nil {
 		return nil, err
