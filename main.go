@@ -38,16 +38,19 @@ func main() {
 	// repos
 	userRepository := repository.NewUserRepository(DB)
 	childRepository := repository.NewChildRepository(DB)
+	anthropometryRepository := repository.NewAnthropometryRepository(DB)
 
 	// services
 	authService := service.NewAuthService(userRepository)
 	userService := service.NewUserService(userRepository)
 	childService := service.NewChildService(childRepository)
+	anthropometryService := service.NewAnthropometryService(anthropometryRepository)
 
 	// handlers
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userService)
 	childHandler := handler.NewChildHandler(childService)
+	anthropometryHandler := handler.NewAnthropometryHandler(anthropometryService)
 
 	router := gin.Default()
 	router.Use(middleware.CustomLogger(logger))
@@ -68,16 +71,19 @@ func main() {
 
 	// // user group
 	userGroup := v1Group.Group("/user").Use(middleware.AuthenticateAccessToken)
-	userGroup.GET("/me", userHandler.Me)
+	userGroup.GET("/me", userHandler.Get)
 	userGroup.PUT("/profile", userHandler.UpdateProfile)
 
-	childGroup := v1Group.Group("/child").Use(middleware.AuthenticateAccessToken)
-	childGroup.GET("get/:childID", childHandler.Get)
+	childGroup := v1Group.Group("/children").Use(middleware.AuthenticateAccessToken)
+	childGroup.GET("", childHandler.Get)
+	childGroup.POST("", childHandler.Create)
+	childGroup.GET("/:childID", childHandler.GetByID)
+
+	anthropometryGroup := v1Group.Group("/anthropometries").Use(middleware.AuthenticateAccessToken)
+	anthropometryGroup.GET("/:childID", anthropometryHandler.GetRecordFromChildID)
 
 	if err := router.Run("0.0.0.0:8080"); err != nil {
 		panic(fmt.Sprintf("ERROR : %v", err.Error()))
-	} else {
-		fmt.Println("Server running at : http://0.0.0.0:8080/api/v1")
 	}
 
 }

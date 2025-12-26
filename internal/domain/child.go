@@ -15,7 +15,7 @@ const (
 )
 
 type Child struct {
-	ID       uuid.UUID  `gorm:"type:uuid;primaryKey"`
+	ID       uuid.UUID  `gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
 	ParentID uuid.UUID `gorm:"type:uuid" json:"parent_id"`
 	Parent   *User      `gorm:"foreignKey:ParentID" json:"parent"`
 
