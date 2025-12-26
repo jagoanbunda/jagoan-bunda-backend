@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jagoanbunda/jagoanbunda-backend/internal/domain"
 	"github.com/jagoanbunda/jagoanbunda-backend/internal/handler"
 	"github.com/jagoanbunda/jagoanbunda-backend/internal/middleware"
 	"github.com/jagoanbunda/jagoanbunda-backend/internal/repository"
