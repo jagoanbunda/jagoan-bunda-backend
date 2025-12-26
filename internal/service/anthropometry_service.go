@@ -11,7 +11,7 @@ import (
 )
 
 type AnthropometryService interface {
-	GetRecord(ctx context.Context, childID uuid.UUID) ([]dto.AnthropometryResponse, error)
+	GetRecordFromChildID(ctx context.Context, childID uuid.UUID) ([]dto.AnthropometryResponse, error)
 }
 
 type anthropometryService struct {
@@ -19,7 +19,7 @@ type anthropometryService struct {
 }
 
 // GetRecord implements [AnthropometryService].
-func (a *anthropometryService) GetRecord(ctx context.Context, childID uuid.UUID) ([]dto.AnthropometryResponse, error){
+func (a *anthropometryService) GetRecordFromChildID(ctx context.Context, childID uuid.UUID) ([]dto.AnthropometryResponse, error){
 	var response []dto.AnthropometryResponse
 	records, err := a.repository.GetFromChildID(ctx, childID)
 	if err != nil {

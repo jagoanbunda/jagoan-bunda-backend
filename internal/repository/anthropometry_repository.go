@@ -31,7 +31,7 @@ func (a *anthropometryRepository) Get(ctx context.Context) ([]domain.Anthropomet
 func (a *anthropometryRepository) GetFromChildID(ctx context.Context, childID uuid.UUID) ([]domain.Anthropometry, error) {
 	var resp []domain.Anthropometry
 	if err := a.db.WithContext(ctx).Where("child_id = ?", childID).
-		Select("created_at", "weight", "height", "head_circumference", "z_score_bbu", "z_score_tbu", "z_score_bbtb", "status_bbu", "status_tbu", "status_bbtb").
+		Preload("Child").
 		Find(&resp).Error; err != nil {
 		return nil, fmt.Errorf("cannot find anthropometry records : %v", err)
 	}
