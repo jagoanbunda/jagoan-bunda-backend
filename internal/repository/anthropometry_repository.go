@@ -12,10 +12,16 @@ import (
 type AnthropometryRepository interface {
 	Get(ctx context.Context) ([]domain.Anthropometry, error)
 	GetFromChildID(ctx context.Context, childID uuid.UUID) ([]domain.Anthropometry, error)
+	Create(ctx context.Context, anthropometry *domain.Anthropometry) error
 }
 
 type anthropometryRepository struct {
 	db *gorm.DB
+}
+
+// Create implements [AnthropometryRepository].
+func (a *anthropometryRepository) Create(ctx context.Context, anthropometry *domain.Anthropometry) error {
+	return a.db.WithContext(ctx).Create(anthropometry).Error
 }
 
 // Get implements [AnthropometryRepository].
