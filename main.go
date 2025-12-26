@@ -78,9 +78,13 @@ func main() {
 	childGroup.GET("", childHandler.Get)
 	childGroup.POST("", childHandler.Create)
 	childGroup.GET("/:childID", childHandler.GetByID)
+	childGroup.PUT("/:childID", childHandler.Update)
+	childGroup.DELETE("/:childID", childHandler.Delete)
+	// anthropometry stuff
+	childGroup.GET("/:childID/anthropometry", anthropometryHandler.GetRecordFromChildID)
+	childGroup.POST("/:childID/anthropometry", anthropometryHandler.CreateWithChildID).Use(middleware.RequireRole(domain.RoleNakes))
 
-	anthropometryGroup := v1Group.Group("/anthropometries").Use(middleware.AuthenticateAccessToken)
-	anthropometryGroup.GET("/:childID", anthropometryHandler.GetRecordFromChildID)
+
 
 	if err := router.Run("0.0.0.0:8080"); err != nil {
 		panic(fmt.Sprintf("ERROR : %v", err.Error()))

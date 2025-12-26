@@ -13,10 +13,23 @@ type ChildRepository interface {
 
 	GetFromChildID(ctx context.Context, childID string) ([]domain.Child, error)
 	Create(ctx context.Context, child *domain.Child) error
+	Update(ctx context.Context, child *domain.Child) error
+
+	Delete(ctx context.Context, child *domain.Child) error
 }
 
 type childRepository struct {
 	db *gorm.DB
+}
+
+// Delete implements [ChildRepository].
+func (c *childRepository) Delete(ctx context.Context, child *domain.Child) error {
+	return c.db.WithContext(ctx).Delete(&child).Error
+}
+
+// Update implements [ChildRepository].
+func (c *childRepository) Update(ctx context.Context, child *domain.Child) error {
+	return c.db.WithContext(ctx).Save(child).Error
 }
 
 // GetBySupervisorID implements [ChildRepository].
@@ -24,11 +37,10 @@ func (c *childRepository) GetBySupervisorID(ctx context.Context, SupervisorID st
 	var children []domain.Child
 
 	if err := c.db.WithContext(ctx).
-						Joins("JOIN users ON users.id = children.parent_id").
-						Where("users.supervisor_id = ? ", SupervisorID).Find(&children).Error;
-		err != nil{
-			return nil, err
-		}
+		Joins("JOIN users ON users.id = children.parent_id").
+		Where("users.supervisor_id = ? ", SupervisorID).Find(&children).Error; err != nil {
+		return nil, err
+	}
 
 	return children, nil
 }

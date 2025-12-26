@@ -12,34 +12,79 @@ import (
 type ChildService interface {
 	GetChildByIDWithAccess(ctx context.Context, childID uuid.UUID, userID uuid.UUID, role domain.UserRole) ([]dto.ChildResponse, error)
 	Create(ctx context.Context, request *dto.CreateChildRequest) (*dto.ChildResponse, error)
+	Update(ctx context.Context, request *dto.UpdateChildRequest) (*dto.ChildResponse, error)
+
+	Delete(ctx context.Context, childID uuid.UUID) error
 	GetChildWithAccess(ctx context.Context, userID uuid.UUID, role domain.UserRole) ([]dto.ChildResponse, error)
 }
 type childService struct {
 	repository repository.ChildRepository
 }
 
+// Delete implements [ChildService].
+func (c *childService) Delete(ctx context.Context, childID uuid.UUID) error {
+	deletedChild := &domain.Child{
+		ID: childID,
+	}
+	if err := c.repository.Delete(ctx, deletedChild) ; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Update implements [ChildService].
+func (c *childService) Update(ctx context.Context, request *dto.UpdateChildRequest) (*dto.ChildResponse, error) {
+	updatedChild := &domain.Child{
+		ID:          request.ID,
+		Name:        request.Name,
+		Birthday:    request.Birthday,
+		Gender:      request.Gender,
+		NIK:         request.NIK,
+		BirthWeight: request.BirthWeight,
+		BirthHeight: request.BirthHeight,
+		ParentID:    request.ParentID,
+	}
+
+	if err := c.repository.Update(ctx, updatedChild); err != nil {
+		return nil, err
+	}
+
+	response := &dto.ChildResponse{
+		Name:        updatedChild.Name,
+		Birthday:    updatedChild.Birthday,
+		Gender:      updatedChild.Gender,
+		NIK:         updatedChild.NIK,
+		BirthWeight: updatedChild.BirthWeight,
+		BirthHeight: updatedChild.BirthHeight,
+	}
+
+	return response, nil
+
+}
+
 // GetChildWithAccess implements [ChildService].
-func (c *childService) GetChildWithAccess(ctx context.Context, userID uuid.UUID, role domain.UserRole) ([]dto.ChildResponse, error){
+func (c *childService) GetChildWithAccess(ctx context.Context, userID uuid.UUID, role domain.UserRole) ([]dto.ChildResponse, error) {
 	var responses []dto.ChildResponse
 	var records []domain.Child
 	var err error
 	switch role {
-		case domain.RoleNakes:
-			records, err = c.repository.GetBySupervisorID(ctx, userID.String())
-		case domain.RoleParent:
-			records, err = c.repository.GetByParentID(ctx, userID.String())
+	case domain.RoleNakes:
+		records, err = c.repository.GetBySupervisorID(ctx, userID.String())
+	case domain.RoleParent:
+		records, err = c.repository.GetByParentID(ctx, userID.String())
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	for _, record := range records{
+	for _, record := range records {
 		responses = append(responses, dto.ChildResponse{
-			Name: record.Name,
-			Birthday: record.Birthday,
-			Gender: record.Gender,
-			NIK: record.NIK,
+			Name:        record.Name,
+			Birthday:    record.Birthday,
+			Gender:      record.Gender,
+			NIK:         record.NIK,
 			BirthWeight: record.BirthWeight,
 			BirthHeight: record.BirthHeight,
 		})

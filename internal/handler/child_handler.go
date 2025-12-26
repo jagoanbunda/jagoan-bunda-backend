@@ -14,10 +14,72 @@ type ChildHandler interface {
 	Get(c *gin.Context)
 	GetByID(c *gin.Context)
 	Create(c *gin.Context)
+
+	Update(c *gin.Context)
+	Delete(c *gin.Context)
 }
 
 type childHandler struct {
 	service service.ChildService
+}
+
+// Delete implements [ChildHandler].
+func (cH *childHandler) Delete(c *gin.Context) {
+	childID := c.Param("childID")
+	if childID == ""{
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err" : "child id is not given"})
+		return
+	}
+
+	parsedChildID, err := uuid.Parse(childID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err" : "child id parsing is failed"})
+		return
+	}
+
+	if err := cH.service.Delete(c.Request.Context(), parsedChildID); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err" : err})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"err" : ""})
+	return
+}
+
+// Update implements [ChildHandler].
+func (cH *childHandler) Update(c *gin.Context) {
+	// userInfo, exist := c.Get("userInfo")
+	// if !exist{
+	// c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"err": "token not provided"})
+	// return
+	// }
+
+	var request dto.UpdateChildRequest
+	if c.Param("childID") == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": "child_id not given"})
+		return
+	}
+	parsedChildID, err := uuid.Parse(c.Param("childID"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": "uuid parse failed"})
+		return
+	}
+
+	request.ID = parsedChildID
+	if err := c.ShouldBind(&request); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": "bad request"})
+		return
+	}
+
+	response, err := cH.service.Update(c.Request.Context(), &request)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": "bad request"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+	return
+
 }
 
 // Get implements [ChildHandler].
@@ -34,14 +96,14 @@ func (cH *childHandler) Get(c *gin.Context) {
 		return
 	}
 
-	response, err := cH.service.GetChildWithAccess(c.Request.Context(), data.UserID, data.Role)
+	request, err := cH.service.GetChildWithAccess(c.Request.Context(), data.UserID, data.Role)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"err": "unauthorized"})
 		return
 	}
 
-	 c.JSON(http.StatusOK, response)
-	 return
+	c.JSON(http.StatusOK, request)
+	return
 }
 
 // Create implements [ChildHandler].

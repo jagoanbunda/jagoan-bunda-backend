@@ -25,3 +25,12 @@ type CreateChildRequest struct {
 	BirthHeight float32       `json:"birth_height"`
 	ParentID    uuid.UUID     `json:"parent_id"`
 }
+
+type UpdateChildRequest struct {
+	ID uuid.UUID `json:"child_id"`
+	CreateChildRequest
+}
+
+type DeleteChildRequest struct{
+	ID uuid.UUID `json:"child_id"`
+}
