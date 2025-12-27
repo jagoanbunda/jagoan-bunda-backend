@@ -84,7 +84,8 @@ func main() {
 	// anthropometry stuff
 	childGroup.GET("/:childID/anthropometry", anthropometryHandler.GetRecordFromChildID)
 	childGroup.POST("/:childID/anthropometry", anthropometryHandler.CreateWithChildID).Use(middleware.RequireRole(domain.RoleNakes))
-
+	childGroup.GET("/:childID/anthropometry/:anthropometryID", anthropometryHandler.GetRecordByIDWithChildID)
+	childGroup.POST("/:childID/anthropometry/:anthropometryID", anthropometryHandler.UpdateWithChildID)
 
 
 	if err := router.Run("0.0.0.0:8080"); err != nil {

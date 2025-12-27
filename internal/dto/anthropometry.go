@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jagoanbunda/jagoanbunda-backend/internal/domain"
 )
 
 type AnthropometryResponse struct{
@@ -20,8 +21,33 @@ type AnthropometryResponse struct{
 	StatusBBTB        float32  `json:"status_bbtb"`
 }
 
+func NewAnthropometryResponse(record *domain.Anthropometry, ageMonths int) ( *AnthropometryResponse) {
+	return &AnthropometryResponse{
+		Date: record.CreatedAt,
+		Weight: record.Weight,
+		Height: record.Height,
+		HeadCircumference: record.HeadCircumference,
+		AgeMonths: ageMonths,
+		ZScoreBBU: record.ZScoreBBU,
+		ZScoreTBU: record.ZScoreTBU,
+		ZScoreBBTB: record.ZScoreBBTB,
+		StatusBBU: record.StatusBBU,
+		StatusTBU : record.StatusTBU,
+		StatusBBTB: record.StatusBBTB,
+	}
+}
+
 type CreateAnthropometryRequest struct{
 	ChildID uuid.UUID
 	UserID uuid.UUID
 	AnthropometryResponse
+}
+type UpdateAnthropometryRequest struct{
+	ID uint
+	ChildID uuid.UUID
+	AnthropometryResponse
+}
+
+type DeleteAnthropometryRequest struct{
+	ID uint
 }

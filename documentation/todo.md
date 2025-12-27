@@ -1,1 +1,2 @@
-- access checking on jwt <-> child.ParentID || child.Parent.SupervisorID
+- [ ] access checking on jwt <-> child.ParentID || child.Parent.SupervisorID
+- [ ] some shit are not DRY yet, refactor it
