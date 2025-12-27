@@ -30,7 +30,30 @@ type anthropometryHandler struct {
 
 // Delete implements [AnthropometryHandler].
 func (a *anthropometryHandler) Delete(c *gin.Context) {
-	panic("unimplemented")
+	childID, err := utils.ParseUUIDFromParamsID(c, "childID")
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err" : "child id is not provided"})
+		return
+	}
+
+	anthropometryID := c.Param("anthropometryID")
+	if anthropometryID == ""{
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err" : "anthropometry id is not provided"})
+		return
+	}
+	parsedAnthropometryID, err := strconv.Atoi(anthropometryID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err" : "fail to convert to int"})
+		return
+	}
+
+	if err := a.service.Delete(c.Request.Context(), *childID, uint(parsedAnthropometryID)); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err" : err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"err" : "record deleted"})
+	return
 }
 
 // UpdateWithChildID implements [AnthropometryHandler].

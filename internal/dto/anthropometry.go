@@ -50,4 +50,5 @@ type UpdateAnthropometryRequest struct{
 
 type DeleteAnthropometryRequest struct{
 	ID uint
+	ChildID uuid.UUID
 }

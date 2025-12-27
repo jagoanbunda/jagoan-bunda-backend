@@ -16,7 +16,7 @@ type AnthropometryService interface {
 	GetRecordByIDWithChildID(ctx context.Context, anthropometryID string, childID uuid.UUID) (*dto.AnthropometryResponse, error)
 	CreateRecordWithChildID(ctx context.Context, request *dto.CreateAnthropometryRequest) (*dto.AnthropometryResponse, error)
 	UpdateWithChildID(ctx context.Context, request *dto.UpdateAnthropometryRequest) (*dto.AnthropometryResponse, error)
-	Delete(ctx context.Context, request *dto.DeleteAnthropometryRequest)
+	Delete(ctx context.Context, childID uuid.UUID, anthropometryID uint) (error)
 }
 
 type anthropometryService struct {
@@ -24,10 +24,15 @@ type anthropometryService struct {
 }
 
 // Delete implements [AnthropometryService].
-func (a *anthropometryService) Delete(ctx context.Context, request *dto.DeleteAnthropometryRequest) {
-	// anthropometry := &domain.Anthropometry{
-	// 	ID
-	// }
+func (a *anthropometryService) Delete(ctx context.Context, childID uuid.UUID, anthropometryID uint) (error){
+	anthropometry := &domain.Anthropometry{
+		ChildID: childID,
+	}
+	anthropometry.ID = anthropometryID
+	if err := a.repository.Delete(ctx, anthropometry); err != nil {
+		return err
+	}
+	return nil
 }
 
 // UpdateWithChildID implements [AnthropometryService].

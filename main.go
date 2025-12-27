@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jagoanbunda/jagoanbunda-backend/internal/domain"
@@ -32,6 +33,16 @@ func init() {
 	}
 
 	DB = database.InitDB()
+	postgreDB, err := DB.DB()
+	if err != nil {
+		panic(fmt.Errorf("ERROR ON INSTANCING DB : %w", err))
+	}
+
+	postgreDB.SetMaxOpenConns(25)
+	postgreDB.SetMaxIdleConns(10)
+	postgreDB.SetConnMaxLifetime(time.Duration(time.Minute * 30))
+	postgreDB.SetConnMaxIdleTime(time.Duration(time.Minute * 5))
+
 }
 
 func main() {
@@ -53,7 +64,10 @@ func main() {
 	childHandler := handler.NewChildHandler(childService)
 	anthropometryHandler := handler.NewAnthropometryHandler(anthropometryService)
 
+	gin.ForceConsoleColor()
+
 	router := gin.Default()
+
 	router.Use(middleware.CustomLogger(logger))
 	router.Use(gin.Recovery())
 	router.Use(middleware.RateLimitter(limitter))
@@ -85,7 +99,8 @@ func main() {
 	childGroup.GET("/:childID/anthropometry", anthropometryHandler.GetRecordFromChildID)
 	childGroup.POST("/:childID/anthropometry", anthropometryHandler.CreateWithChildID).Use(middleware.RequireRole(domain.RoleNakes))
 	childGroup.GET("/:childID/anthropometry/:anthropometryID", anthropometryHandler.GetRecordByIDWithChildID)
-	childGroup.POST("/:childID/anthropometry/:anthropometryID", anthropometryHandler.UpdateWithChildID)
+	childGroup.PUT("/:childID/anthropometry/:anthropometryID", anthropometryHandler.UpdateWithChildID)
+	childGroup.DELETE("/:childID/anthropometry/:anthropometryID", anthropometryHandler.Delete)
 
 
 	if err := router.Run("0.0.0.0:8080"); err != nil {
