@@ -23,37 +23,53 @@ type childHandler struct {
 	service service.ChildService
 }
 
-// Delete implements [ChildHandler].
+// Delete godoc
+// @Summary Hapus data anak
+// @Description Menghapus data anak berdasarkan ID
+// @Tags Children
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param childID path string true "Child ID (UUID)"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /children/{childID} [delete]
 func (cH *childHandler) Delete(c *gin.Context) {
 	childID := c.Param("childID")
-	if childID == ""{
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err" : "child id is not given"})
+	if childID == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": "child id is not given"})
 		return
 	}
 
 	parsedChildID, err := uuid.Parse(childID)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err" : "child id parsing is failed"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err": "child id parsing is failed"})
 		return
 	}
 
 	if err := cH.service.Delete(c.Request.Context(), parsedChildID); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err" : err})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err": err})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"err" : ""})
+	c.JSON(http.StatusOK, gin.H{"err": ""})
 	return
 }
 
-// Update implements [ChildHandler].
+// Update godoc
+// @Summary Update data anak
+// @Description Mengupdate informasi data anak
+// @Tags Children
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param childID path string true "Child ID (UUID)"
+// @Param request body dto.CreateChildRequest true "Data anak yang diupdate"
+// @Success 200 {object} dto.ChildResponse
+// @Failure 400 {object} map[string]interface{}
+// @Router /children/{childID} [put]
 func (cH *childHandler) Update(c *gin.Context) {
-	// userInfo, exist := c.Get("userInfo")
-	// if !exist{
-	// c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"err": "token not provided"})
-	// return
-	// }
-
 	var request dto.UpdateChildRequest
 	if c.Param("childID") == "" {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": "child_id not given"})
@@ -82,7 +98,16 @@ func (cH *childHandler) Update(c *gin.Context) {
 
 }
 
-// Get implements [ChildHandler].
+// Get godoc
+// @Summary Get semua data anak
+// @Description Mendapatkan semua data anak berdasarkan akses user (parent melihat anaknya, nakes melihat semua)
+// @Tags Children
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {array} dto.ChildResponse
+// @Failure 401 {object} map[string]interface{}
+// @Router /children [get]
 func (cH *childHandler) Get(c *gin.Context) {
 	userInfo, exist := c.Get("userInfo")
 	if !exist {
@@ -106,7 +131,19 @@ func (cH *childHandler) Get(c *gin.Context) {
 	return
 }
 
-// Create implements [ChildHandler].
+// Create godoc
+// @Summary Tambah data anak baru
+// @Description Menambahkan data anak baru untuk parent yang sedang login
+// @Tags Children
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body dto.CreateChildRequest true "Data anak baru"
+// @Success 200 {object} dto.ChildResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 409 {object} map[string]interface{}
+// @Router /children [post]
 func (cH *childHandler) Create(c *gin.Context) {
 	var child dto.CreateChildRequest
 
@@ -138,7 +175,17 @@ func (cH *childHandler) Create(c *gin.Context) {
 	return
 }
 
-// GetByID implements [ChildHandler].
+// GetByID godoc
+// @Summary Get data anak by ID
+// @Description Mendapatkan detail data anak berdasarkan ID
+// @Tags Children
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param childID path string true "Child ID (UUID)"
+// @Success 200 {object} dto.ChildResponse
+// @Failure 400 {object} map[string]interface{}
+// @Router /children/{childID} [get]
 func (cH *childHandler) GetByID(c *gin.Context) {
 
 	userInfo, exist := c.Get("userInfo")

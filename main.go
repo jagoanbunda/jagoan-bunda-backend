@@ -14,9 +14,32 @@ import (
 	"github.com/jagoanbunda/jagoanbunda-backend/pkg/database"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"golang.org/x/time/rate"
 	"gorm.io/gorm"
+
+	_ "github.com/jagoanbunda/jagoanbunda-backend/docs"
 )
+
+// @title Jagoan Bunda API
+// @version 1.0
+// @description API Backend untuk aplikasi Jagoan Bunda - Sistem monitoring tumbuh kembang anak
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name Jagoan Bunda Team
+// @contact.email support@jagoanbunda.com
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 
 var logger *logrus.Logger
 var limitter *rate.Limiter
@@ -68,8 +91,13 @@ func main() {
 
 	router := gin.Default()
 
+	// Swagger documentation - placed before rate limiter to avoid 429 errors
+
 	router.Use(middleware.CustomLogger(logger))
 	router.Use(gin.Recovery())
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	router.Use(middleware.RateLimitter(limitter))
 
 	// Static file serving for uploads
@@ -101,7 +129,6 @@ func main() {
 	childGroup.GET("/:childID/anthropometry/:anthropometryID", anthropometryHandler.GetRecordByIDWithChildID)
 	childGroup.PUT("/:childID/anthropometry/:anthropometryID", anthropometryHandler.UpdateWithChildID)
 	childGroup.DELETE("/:childID/anthropometry/:anthropometryID", anthropometryHandler.Delete)
-
 
 	if err := router.Run("0.0.0.0:8080"); err != nil {
 		panic(fmt.Sprintf("ERROR : %v", err.Error()))

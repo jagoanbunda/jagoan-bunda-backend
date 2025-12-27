@@ -1,0 +1,686 @@
+basePath: /api/v1
+definitions:
+  domain.Gender:
+    enum:
+    - male
+    - female
+    type: string
+    x-enum-varnames:
+    - Male
+    - Female
+  domain.UserRole:
+    enum:
+    - parent
+    - nakes
+    - admin
+    type: string
+    x-enum-varnames:
+    - RoleParent
+    - RoleNakes
+    - RoleAdmin
+  dto.AnthropometryResponse:
+    properties:
+      age_months:
+        type: integer
+      head_circumference:
+        type: number
+      height:
+        type: number
+      status_bbtb:
+        type: number
+      status_bbu:
+        type: number
+      status_tbu:
+        type: number
+      time:
+        type: string
+      weight:
+        type: number
+      zscore_bbtb:
+        type: number
+      zscore_bbu:
+        type: number
+      zscore_tbu:
+        type: number
+    type: object
+  dto.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      message:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  dto.ChildResponse:
+    properties:
+      birth_day:
+        type: number
+      birth_weight:
+        type: number
+      birthday:
+        type: string
+      gender:
+        $ref: '#/definitions/domain.Gender'
+      name:
+        type: string
+      nik:
+        type: string
+    type: object
+  dto.CreateChildRequest:
+    properties:
+      birth_height:
+        type: number
+      birth_weight:
+        type: number
+      birthday:
+        type: string
+      gender:
+        $ref: '#/definitions/domain.Gender'
+      name:
+        type: string
+      nik:
+        type: string
+      parent_id:
+        type: string
+    type: object
+  dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  dto.RegisterRequest:
+    properties:
+      NIK:
+        type: string
+      address:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      phone:
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/domain.UserRole'
+        enum:
+        - parent
+        - nakes
+    required:
+    - email
+    - name
+    - password
+    - phone
+    - role
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@jagoanbunda.com
+    name: Jagoan Bunda Team
+  description: API Backend untuk aplikasi Jagoan Bunda - Sistem monitoring tumbuh
+    kembang anak
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Jagoan Bunda API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Autentikasi user dengan email dan password
+      parameters:
+      - description: Kredensial login
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login user
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Mendapatkan access token baru menggunakan refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Refresh access token
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Mendaftarkan user baru dengan role parent atau nakes
+      parameters:
+      - description: Data registrasi user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register user baru
+      tags:
+      - Auth
+  /children:
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan semua data anak berdasarkan akses user (parent melihat
+        anaknya, nakes melihat semua)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ChildResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get semua data anak
+      tags:
+      - Children
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan data anak baru untuk parent yang sedang login
+      parameters:
+      - description: Data anak baru
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateChildRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ChildResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Tambah data anak baru
+      tags:
+      - Children
+  /children/{childID}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus data anak berdasarkan ID
+      parameters:
+      - description: Child ID (UUID)
+        in: path
+        name: childID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Hapus data anak
+      tags:
+      - Children
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan detail data anak berdasarkan ID
+      parameters:
+      - description: Child ID (UUID)
+        in: path
+        name: childID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ChildResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get data anak by ID
+      tags:
+      - Children
+    put:
+      consumes:
+      - application/json
+      description: Mengupdate informasi data anak
+      parameters:
+      - description: Child ID (UUID)
+        in: path
+        name: childID
+        required: true
+        type: string
+      - description: Data anak yang diupdate
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateChildRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ChildResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update data anak
+      tags:
+      - Children
+  /children/{childID}/anthropometry:
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan semua data pengukuran anthropometry untuk anak tertentu
+      parameters:
+      - description: Child ID (UUID)
+        in: path
+        name: childID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.AnthropometryResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get semua record anthropometry anak
+      tags:
+      - Anthropometry
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan data pengukuran anthropometry baru untuk anak (hanya
+        Nakes)
+      parameters:
+      - description: Child ID (UUID)
+        in: path
+        name: childID
+        required: true
+        type: string
+      - description: Data anthropometry baru
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AnthropometryResponse'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.AnthropometryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Tambah record anthropometry baru
+      tags:
+      - Anthropometry
+  /children/{childID}/anthropometry/{anthropometryID}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus record anthropometry berdasarkan ID
+      parameters:
+      - description: Child ID (UUID)
+        in: path
+        name: childID
+        required: true
+        type: string
+      - description: Anthropometry ID
+        in: path
+        name: anthropometryID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Hapus record anthropometry
+      tags:
+      - Anthropometry
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan detail record anthropometry berdasarkan ID
+      parameters:
+      - description: Child ID (UUID)
+        in: path
+        name: childID
+        required: true
+        type: string
+      - description: Anthropometry ID
+        in: path
+        name: anthropometryID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AnthropometryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get record anthropometry by ID
+      tags:
+      - Anthropometry
+    put:
+      consumes:
+      - application/json
+      description: Mengupdate data pengukuran anthropometry anak
+      parameters:
+      - description: Child ID (UUID)
+        in: path
+        name: childID
+        required: true
+        type: string
+      - description: Anthropometry ID
+        in: path
+        name: anthropometryID
+        required: true
+        type: integer
+      - description: Data anthropometry yang diupdate
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AnthropometryResponse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AnthropometryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update record anthropometry
+      tags:
+      - Anthropometry
+  /user/me:
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan profil user yang sedang login
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - User
+  /user/profile:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update user profile information and optionally upload a profile
+        picture
+      parameters:
+      - description: User name
+        in: formData
+        name: name
+        type: string
+      - description: User phone number
+        in: formData
+        name: phone
+        type: string
+      - description: User address
+        in: formData
+        name: address
+        type: string
+      - description: User NIK
+        in: formData
+        name: nik
+        type: string
+      - description: Profile picture (jpg, jpeg, png, gif, webp)
+        in: formData
+        name: profile_picture
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - User
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

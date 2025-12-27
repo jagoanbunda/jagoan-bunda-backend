@@ -1,10 +1,6 @@
 package handler
 
 import (
-	// "net/http"
-
-	// "net/http"
-
 	"net/http"
 	"strconv"
 
@@ -13,7 +9,6 @@ import (
 	"github.com/jagoanbunda/jagoanbunda-backend/internal/dto"
 	"github.com/jagoanbunda/jagoanbunda-backend/internal/service"
 	"github.com/jagoanbunda/jagoanbunda-backend/internal/utils"
-	// "github.com/jagoanbunda/jagoanbunda-backend/internal/utils"
 )
 
 type AnthropometryHandler interface {
@@ -28,35 +23,60 @@ type anthropometryHandler struct {
 	service service.AnthropometryService
 }
 
-// Delete implements [AnthropometryHandler].
+// Delete godoc
+// @Summary Hapus record anthropometry
+// @Description Menghapus record anthropometry berdasarkan ID
+// @Tags Anthropometry
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param childID path string true "Child ID (UUID)"
+// @Param anthropometryID path integer true "Anthropometry ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /children/{childID}/anthropometry/{anthropometryID} [delete]
 func (a *anthropometryHandler) Delete(c *gin.Context) {
 	childID, err := utils.ParseUUIDFromParamsID(c, "childID")
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err" : "child id is not provided"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": "child id is not provided"})
 		return
 	}
 
 	anthropometryID := c.Param("anthropometryID")
-	if anthropometryID == ""{
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err" : "anthropometry id is not provided"})
+	if anthropometryID == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": "anthropometry id is not provided"})
 		return
 	}
 	parsedAnthropometryID, err := strconv.Atoi(anthropometryID)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err" : "fail to convert to int"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": "fail to convert to int"})
 		return
 	}
 
 	if err := a.service.Delete(c.Request.Context(), *childID, uint(parsedAnthropometryID)); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err" : err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"err" : "record deleted"})
+	c.JSON(http.StatusOK, gin.H{"err": "record deleted"})
 	return
 }
 
-// UpdateWithChildID implements [AnthropometryHandler].
+// UpdateWithChildID godoc
+// @Summary Update record anthropometry
+// @Description Mengupdate data pengukuran anthropometry anak
+// @Tags Anthropometry
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param childID path string true "Child ID (UUID)"
+// @Param anthropometryID path integer true "Anthropometry ID"
+// @Param request body dto.AnthropometryResponse true "Data anthropometry yang diupdate"
+// @Success 200 {object} dto.AnthropometryResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /children/{childID}/anthropometry/{anthropometryID} [put]
 func (a *anthropometryHandler) UpdateWithChildID(c *gin.Context) {
 	var request dto.UpdateAnthropometryRequest
 	childID, err := utils.ParseUUIDFromParamsID(c, "childID")
@@ -94,7 +114,19 @@ func (a *anthropometryHandler) UpdateWithChildID(c *gin.Context) {
 	return
 }
 
-// GetRecordByIDWithChildID implements [AnthropometryHandler].
+// GetRecordByIDWithChildID godoc
+// @Summary Get record anthropometry by ID
+// @Description Mendapatkan detail record anthropometry berdasarkan ID
+// @Tags Anthropometry
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param childID path string true "Child ID (UUID)"
+// @Param anthropometryID path integer true "Anthropometry ID"
+// @Success 200 {object} dto.AnthropometryResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /children/{childID}/anthropometry/{anthropometryID} [get]
 func (a *anthropometryHandler) GetRecordByIDWithChildID(c *gin.Context) {
 	childID, err := utils.ParseUUIDFromParamsID(c, "childID")
 	if err != nil {
@@ -118,7 +150,19 @@ func (a *anthropometryHandler) GetRecordByIDWithChildID(c *gin.Context) {
 	return
 }
 
-// CreateWithChildID implements [AnthropometryHandler].
+// CreateWithChildID godoc
+// @Summary Tambah record anthropometry baru
+// @Description Menambahkan data pengukuran anthropometry baru untuk anak (hanya Nakes)
+// @Tags Anthropometry
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param childID path string true "Child ID (UUID)"
+// @Param request body dto.AnthropometryResponse true "Data anthropometry baru"
+// @Success 201 {object} dto.AnthropometryResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /children/{childID}/anthropometry [post]
 func (a *anthropometryHandler) CreateWithChildID(c *gin.Context) {
 	var request dto.CreateAnthropometryRequest
 	childID := c.Param("childID")
@@ -159,7 +203,18 @@ func (a *anthropometryHandler) CreateWithChildID(c *gin.Context) {
 
 }
 
-// GetRecordFromChildID implements [AnthropometryHandler].
+// GetRecordFromChildID godoc
+// @Summary Get semua record anthropometry anak
+// @Description Mendapatkan semua data pengukuran anthropometry untuk anak tertentu
+// @Tags Anthropometry
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param childID path string true "Child ID (UUID)"
+// @Success 200 {array} dto.AnthropometryResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /children/{childID}/anthropometry [get]
 func (a *anthropometryHandler) GetRecordFromChildID(c *gin.Context) {
 	childID := c.Param("childID")
 	if childID == "" {

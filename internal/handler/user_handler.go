@@ -19,6 +19,18 @@ type userHandler struct {
 	userService service.UserService
 }
 
+// Get godoc
+// @Summary Get current user profile
+// @Description Mendapatkan profil user yang sedang login
+// @Tags User
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /user/me [get]
 func (u *userHandler) Get(c *gin.Context) {
 	uuid, exist := c.Get("userInfo")
 	if !exist {
@@ -48,6 +60,7 @@ func (u *userHandler) Get(c *gin.Context) {
 // @Tags User
 // @Accept multipart/form-data
 // @Produce json
+// @Security BearerAuth
 // @Param name formData string false "User name"
 // @Param phone formData string false "User phone number"
 // @Param address formData string false "User address"
@@ -57,7 +70,7 @@ func (u *userHandler) Get(c *gin.Context) {
 // @Failure 400 {object} map[string]interface{}
 // @Failure 401 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /api/v1/user/profile [put]
+// @Router /user/profile [put]
 func (u *userHandler) UpdateProfile(c *gin.Context) {
 	// Get user info from context (set by auth middleware)
 	userInfo, exists := c.Get("userInfo")
