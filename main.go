@@ -140,6 +140,7 @@ func main() {
 	foodGroup.POST("", foodHandler.Create)
 	foodGroup.PUT("/:foodID", foodHandler.Update)
 	foodGroup.DELETE("/:foodID", foodHandler.Delete)
+	foodGroup.GET("/search/:key", foodHandler.Search)
 
 	if err := router.Run("0.0.0.0:8080"); err != nil {
 		panic(fmt.Sprintf("ERROR : %v", err.Error()))

@@ -28,7 +28,9 @@ func NewFoodDomainFromRequest(request *FoodRequest) *domain.Food{
 		IsActive: request.IsActive,
 	}
 
-	newFoodDomain.ID = *request.ID
+	if request.ID != nil {
+		newFoodDomain.ID = *request.ID
+	}
 	return newFoodDomain
 
 }

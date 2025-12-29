@@ -13,10 +13,21 @@ type FoodRepository interface {
 	Get(ctx context.Context) ([]domain.Food, error)
 	Update(ctx context.Context, food *domain.Food) error
 	Delete(ctx context.Context, food *domain.Food) error
+	Search(ctx context.Context, key string) ([]domain.Food, error)
 }
 
 type foodRepository struct {
 	db *gorm.DB
+}
+
+// Search implements [FoodRepository].
+func (f *foodRepository) Search(ctx context.Context, key string) ([]domain.Food, error) {
+	var records []domain.Food
+	if err := f.db.WithContext(ctx).Where("name LIKE ? " , key + "%").Find(&records).Error; err != nil {
+		return nil, err
+	}
+
+	return records, nil
 }
 
 // Create implements [FoodRepository].
@@ -33,9 +44,9 @@ func (f *foodRepository) Delete(ctx context.Context, food *domain.Food) error {
 func (f *foodRepository) Get(ctx context.Context) ([]domain.Food, error) {
 	var records []domain.Food
 	if err := f.db.WithContext(ctx).
-						Find(&records).Error ; err != nil {
-							return nil, fmt.Errorf("REPOSITORY ERROR : %w", err)
-						}
+		Find(&records).Error; err != nil {
+		return nil, fmt.Errorf("REPOSITORY ERROR : %w", err)
+	}
 	return records, nil
 }
 
