@@ -1,3 +1,4 @@
+// Package database for saving the connection and configuration to the db
 package database
 
 import (

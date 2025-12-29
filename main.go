@@ -74,18 +74,21 @@ func main() {
 	userRepository := repository.NewUserRepository(DB)
 	childRepository := repository.NewChildRepository(DB)
 	anthropometryRepository := repository.NewAnthropometryRepository(DB)
+	foodRepository := repository.NewFoodRepository(DB)
 
 	// services
 	authService := service.NewAuthService(userRepository)
 	userService := service.NewUserService(userRepository)
 	childService := service.NewChildService(childRepository)
 	anthropometryService := service.NewAnthropometryService(anthropometryRepository)
+	foodService := service.NewFoodService(foodRepository)
 
 	// handlers
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userService)
 	childHandler := handler.NewChildHandler(childService)
 	anthropometryHandler := handler.NewAnthropometryHandler(anthropometryService)
+	foodHandler := handler.NewFoodHandler(foodService)
 
 	gin.ForceConsoleColor()
 
@@ -123,6 +126,7 @@ func main() {
 	childGroup.GET("/:childID", childHandler.GetByID)
 	childGroup.PUT("/:childID", childHandler.Update)
 	childGroup.DELETE("/:childID", childHandler.Delete)
+
 	// anthropometry stuff
 	childGroup.GET("/:childID/anthropometry", anthropometryHandler.GetRecordFromChildID)
 	childGroup.POST("/:childID/anthropometry", anthropometryHandler.CreateWithChildID).Use(middleware.RequireRole(domain.RoleNakes))
@@ -130,8 +134,14 @@ func main() {
 	childGroup.PUT("/:childID/anthropometry/:anthropometryID", anthropometryHandler.UpdateWithChildID)
 	childGroup.DELETE("/:childID/anthropometry/:anthropometryID", anthropometryHandler.Delete)
 
+	// foods
+	foodGroup := v1Group.Group("/foods").Use(middleware.AuthenticateAccessToken)
+	foodGroup.GET("", foodHandler.Get)
+	foodGroup.POST("", foodHandler.Create)
+	foodGroup.PUT("/:foodID", foodHandler.Update)
+	foodGroup.DELETE("/:foodID", foodHandler.Delete)
+
 	if err := router.Run("0.0.0.0:8080"); err != nil {
 		panic(fmt.Sprintf("ERROR : %v", err.Error()))
 	}
-
 }
